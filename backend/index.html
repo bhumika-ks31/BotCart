@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Razorpay Fake Payment Demo</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body style="display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;background:#111;color:white;font-family:sans-serif;">
+  <h2>Fake Razorpay Payment Demo</h2>
+  <button onclick="payNow()" style="padding: 12px 24px; font-size: 18px; background: #00c7ff; color: white; border: none; border-radius: 8px;">Pay ₹1</button>
+
+  <script>
+    function payNow() {
+      var options = {
+        key: "rzp_test_abc123xyz456", // ← replace with your test key
+        amount: 100, // ₹1 = 100 paise
+        currency: "INR",
+        name: "Fake Shop",
+        description: "Internship Payment Demo",
+        image: "https://yourlogo.png", // optional
+        handler: function (response) {
+          alert("Payment Success! ID: " + response.razorpay_payment_id);
+        },
+        prefill: {
+          name: "Intern User",
+          email: "test@example.com",
+          contact: "9999999999"
+        },
+        theme: {
+          color: "#00c7ff"
+        }
+      };
+      var rzp = new Razorpay(options);
+      rzp.open();
+    }
+  </script>
+</body>
+</html>
