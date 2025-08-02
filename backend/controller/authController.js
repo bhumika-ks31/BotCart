@@ -23,8 +23,8 @@ export const registration = async (req,res) => {
     let token = await genToken(user._id)
     res.cookie("token",token,{
         httpOnly:true,
-        secure:true,
-        sameSite: "none",
+        secure:false,
+        sameSite: "Strict",
         maxAge: 7 * 24 * 60 * 60 * 1000
     })
     return res.status(201).json(user)
@@ -35,71 +35,90 @@ export const registration = async (req,res) => {
     
 }
 
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-export const login = async (req,res) => {
-    try {
-        let {email,password} = req.body;
-        let user = await User.findOne({email}) 
-        if(!user){
-            return res.status(404).json({message:"User is not Found"})
-        }
-        let isMatch = await bcrypt.compare(password,user.password)
-        if(!isMatch){
-            return res.status(400).json({message:"Incorrect password"})
-        }
-        let token = await genToken(user._id)
-        res.cookie("token",token,{
-        httpOnly:true,
-        secure:true,
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    })
-    return res.status(201).json(user)
-
-    } catch (error) {
-         console.log("login error")
-    return res.status(500).json({message:`Login error ${error}`})
-        
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
     }
-    
-}
-export const logOut = async (req,res) => {
-try {
-    res.clearCookie("token")
-    return res.status(200).json({message:"logOut successful"})
-} catch (error) {
-    console.log("logOut error")
-    return res.status(500).json({message:`LogOut error ${error}`})
-}
-    
-}
 
-
-export const googleLogin = async (req,res) => {
-    try {
-        let {name , email} = req.body;
-         let user = await User.findOne({email}) 
-        if(!user){
-          user = await User.create({
-            name,email
-        })
-        }
-       
-        let token = await genToken(user._id)
-        res.cookie("token",token,{
-        httpOnly:true,
-        secure:true,
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    })
-    return res.status(200).json(user)
-
-    } catch (error) {
-         console.log("googleLogin error")
-    return res.status(500).json({message:`googleLogin error ${error}`})
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User is not Found" });
     }
-    
-}
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
+
+    const token = await genToken(user._id);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // change to true in production with HTTPS
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    return res.status(200).json(user); // Changed from 201 to 200
+  } catch (error) {
+    console.log("Login error:", error);
+    return res.status(500).json({ message: `Login error: ${error.message}` });
+  }
+};
+
+
+export const logOut = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,         // set to true in production
+      sameSite: "Strict",
+    });
+    return res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.log("Logout error:", error);
+    return res.status(500).json({ message: `Logout error: ${error.message}` });
+  }
+};
+
+
+export const googleLogin = async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    if (!email || !name) {
+      return res.status(400).json({ message: "Invalid Google login data" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // You can also auto-generate a password here if needed
+      user = await User.create({
+        name,
+        email,
+        password: "google-oauth", // or a dummy hash if schema requires it
+      });
+    }
+
+    const token = await genToken(user._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // change to true in production with HTTPS
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Google login error:", error);
+    return res.status(500).json({ message: `Google login error: ${error.message}` });
+  }
+};
+
 
 
 export const adminLogin = async (req,res) => {
@@ -109,8 +128,8 @@ export const adminLogin = async (req,res) => {
         let token = await genToken1(email)
         res.cookie("token",token,{
         httpOnly:true,
-        secure:true,
-        sameSite: "none",
+        secure:false,
+        sameSite: "Strict",
         maxAge: 1 * 24 * 60 * 60 * 1000
     })
     return res.status(200).json(token)
