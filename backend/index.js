@@ -22,12 +22,10 @@ const port = process.env.PORT || 6000;
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Updated CORS to include frontend port 5175
+// ✅ CORS: Allow frontend domains (both local and deployed)
 app.use(cors({
   origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175"  // <-- your frontend likely runs here
+    "https://botcart-1.onrender.com"   
   ],
   credentials: true
 }));
