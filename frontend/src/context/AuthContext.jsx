@@ -1,22 +1,15 @@
-import React from 'react'
-import { createContext } from 'react'
-export const authDataContext= createContext()
-function AuthContext({children}) {
-    let serverUrl = "https://botcart-31.onrender.com"
+import React, { createContext } from 'react';
 
-    let value = {
-       serverUrl
-    }
+export const authDataContext = createContext();
+
+function AuthContext({ children }) {
+  const serverUrl = "https://botcart-31.onrender.com";
+
   return (
-
-    
-    <div>
-        <authDataContext.Provider value={value}>
-            {children}
-        </authDataContext.Provider>
-      
-    </div>
-  )
+    <authDataContext.Provider value={{ serverUrl }}>
+      {children}
+    </authDataContext.Provider>
+  );
 }
 
-export default AuthContext
+export default AuthContext;
